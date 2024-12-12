@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='board.css') }}"/>
+    </head>
+    <body>
+        <div>
+            <h1>게시판</h1>
+            <form id="searchform" action="/allsearch/" method="POST">
+                <select id="searchtype" name="searchType" onchange="searchchange()">
+                    <option value="allsearch">전체</option>
+                    <option value="titlesearch">제목</option>
+                    <option value="descriptionsearch">내용</option>
+                </select>
+                <input type="search" name="object" placeholder="검색어를 입려해주세오.">
+                <input type="submit" value="검색">
+            </form>
+            <div id="board">
+                {{add_info|safe}}
+            </div>
+            <a href="/create/">새로운 글 작성</a>
+        </div>
+        <script>
+            function searchchange() {
+                var searchtype=document.getElementById("searchtype").value;
+                var searchform=document.getElementById("searchform");
+                if (searchtype=="allsearch") {
+                    searchform.action="/allsearch/";
+                } else if (searchtype=="titlesearch") {
+                    searchform.action="/titlesearch/";
+                } else if (searchtype=="descriptionsearch"){
+                    searchform.action="/descriptionsearch/";
+                }
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='board.css') }}"/>
+    </head>
+    <body>
+        <div>
+            <form action="/create/" method = "POST">
+                <p><input type="text" name="title" placeholder="제목을 입력해주세요."></p>
+                <p><textarea name="description" placeholder="내용을 작성해주세요."></textarea></p>
+                <p><input type="submit" value="생성"></p>
+            </form>
+            </div>
+            <a href="#" onClick="history.back()">이전페이지로</a>
+        </div>
+    </body>
+</html>
