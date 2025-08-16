@@ -1,47 +1,8 @@
 // Steam 게임 분석기 JavaScript 파일
 
-// 샘플 데이터 (실제 Steam API 대신 사용)
-const sampleData = {
-    myGames: [
-        { name: "Counter-Strike 2", playtime: 150, playtime2weeks: 20, appid: 730 },
-        { name: "Dota 2", playtime: 120, playtime2weeks: 15, appid: 570 },
-        { name: "PUBG: BATTLEGROUNDS", playtime: 80, playtime2weeks: 5, appid: 578080 },
-        { name: "Grand Theft Auto V", playtime: 60, playtime2weeks: 0, appid: 271590 },
-        { name: "Minecraft", playtime: 45, playtime2weeks: 10, appid: 322330 },
-        { name: "Red Dead Redemption 2", playtime: 40, playtime2weeks: 0, appid: 1174180 },
-        { name: "The Witcher 3: Wild Hunt", playtime: 35, playtime2weeks: 0, appid: 292030 },
-        { name: "Fallout 4", playtime: 30, playtime2weeks: 0, appid: 377160 },
-        { name: "Skyrim", playtime: 25, playtime2weeks: 0, appid: 72850 },
-        { name: "Portal 2", playtime: 20, playtime2weeks: 0, appid: 620 }
-    ],
-    friendsGames: {
-        "gamer123": [
-            { name: "Counter-Strike 2", playtime: 200, appid: 730 },
-            { name: "Dota 2", playtime: 180, appid: 570 },
-            { name: "Valorant", playtime: 150, appid: 123456 },
-            { name: "Apex Legends", playtime: 100, appid: 789012 },
-            { name: "Overwatch 2", playtime: 80, appid: 345678 }
-        ],
-        "player456": [
-            { name: "Counter-Strike 2", playtime: 120, appid: 730 },
-            { name: "PUBG: BATTLEGROUNDS", playtime: 150, appid: 578080 },
-            { name: "Fortnite", playtime: 200, appid: 234567 },
-            { name: "Call of Duty: Modern Warfare", playtime: 90, appid: 456789 },
-            { name: "Rainbow Six Siege", playtime: 60, appid: 567890 }
-        ],
-        "progamer": [
-            { name: "Dota 2", playtime: 300, appid: 570 },
-            { name: "League of Legends", playtime: 250, appid: 123456 },
-            { name: "Starcraft II", playtime: 120, appid: 678901 },
-            { name: "Hearthstone", playtime: 80, appid: 890123 },
-            { name: "Teamfight Tactics", playtime: 60, appid: 901234 }
-        ]
-    }
-};
-
-// 전역 변수
-let currentData = { ...sampleData };
-let currentTab = 'my-games-tab';
+// 전역 변수 (빈 객체로 시작)
+let currentData = { myGames: [], friendsGames: {} };
+let currentTab = 'setup-tab';
 
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -111,33 +72,33 @@ function startAnalysis() {
     
     console.log('분석 시작:', { mySteamId, friendIds });
     
-    // Steam Community에서 직접 데이터 가져오기
+    // Vercel 배포된 서버에서 Steam 데이터 가져오기
     loadSteamData(mySteamId, friendIds);
 }
 
-// 백엔드 서버에서 Steam 데이터 가져오기
+// Vercel 배포된 서버에서 Steam 데이터 가져오기
 async function loadSteamData(steamId, friendIds) {
     try {
-        console.log(`Steam ID ${steamId}로 백엔드 서버에서 데이터 로딩 시작`);
+        console.log(`Steam ID ${steamId}로 Vercel 서버에서 데이터 로딩 시작`);
         
         // 로딩 표시
         document.getElementById('setup-tab').innerHTML = `
-            <h2>🎮 백엔드 서버에서 Steam 데이터 로딩 중...</h2>
+            <h2>🎮 Vercel 서버에서 Steam 데이터 로딩 중...</h2>
             <div style="text-align: center; padding: 50px;">
                 <div class="loading"></div>
-                <p>Steam ID ${steamId}로 백엔드 서버를 통해 Steam 데이터를 가져오는 중...</p>
+                <p>Steam ID ${steamId}로 Vercel 서버를 통해 Steam 데이터를 가져오는 중...</p>
                 <p>잠시만 기다려주세요...</p>
             </div>
         `;
         
-        // 백엔드 API 호출
-        console.log('백엔드 API 호출 시도...');
-        const response = await fetch(`http://localhost:3000/api/steam-data/${steamId}`);
+        // Vercel API 호출
+        console.log('Vercel API 호출 시도...');
+        const response = await fetch(`https://steam-data-nine.vercel.app/api/steam-data/${steamId}`);
         const data = await response.json();
-        console.log('백엔드 API 호출 성공!', data);
+        console.log('Vercel API 호출 성공!', data);
         
         if (data.success) {
-            // 백엔드에서 받은 게임 데이터 사용
+            // Vercel에서 받은 게임 데이터 사용
             const gameData = data.games;
             
             // 친구 데이터도 로드
@@ -155,13 +116,11 @@ async function loadSteamData(steamId, friendIds) {
                         try {
                             console.log(`친구 Steam ID ${friendId} 데이터 로딩 중...`);
                             
-                            let friendResponse, friendData;
-                            
-                            // 백엔드 API로 친구 데이터 가져오기
-                            console.log(`친구 Steam ID ${friendId} 백엔드 API 호출 시도...`);
-                            friendResponse = await fetch(`http://localhost:3000/api/friend-data/${friendId}`);
+                            // Vercel API로 친구 데이터 가져오기
+                            console.log(`친구 Steam ID ${friendId} Vercel API 호출 시도...`);
+                            const friendResponse = await fetch(`https://steam-data-nine.vercel.app/api/friend-data/${friendId}`);
                             const friendApiData = await friendResponse.json();
-                            console.log('친구 백엔드 API 호출 성공!', friendApiData);
+                            console.log('친구 Vercel API 호출 성공!', friendApiData);
                             
                             if (friendApiData.success) {
                                 friendsData[friendId] = friendApiData.games;
@@ -178,10 +137,10 @@ async function loadSteamData(steamId, friendIds) {
             
             // 성공 메시지
             document.getElementById('setup-tab').innerHTML = `
-                <h2>✅ 백엔드 서버에서 Steam 데이터 로드 완료!</h2>
+                <h2>✅ Vercel 서버에서 Steam 데이터 로드 완료!</h2>
                 <div style="text-align: center; padding: 50px;">
                     <p>게임 ${gameData.length}개를 성공적으로 가져왔습니다!</p>
-                    <button class="btn" onclick="showTab('stats-tab')">📊 분석 결과 보기</button>
+                    <button class="btn" onclick="showTab('stats-tab')">�� 분석 결과 보기</button>
                     <button class="btn btn-secondary" onclick="restoreSetupTab()">⚙️ 설정으로 돌아가기</button>
                 </div>
             `;
@@ -191,109 +150,30 @@ async function loadSteamData(steamId, friendIds) {
             showTab('stats-tab');
             
         } else {
-            throw new Error('백엔드 서버에서 데이터를 가져올 수 없습니다.');
+            throw new Error('Vercel 서버에서 데이터를 가져올 수 없습니다.');
         }
         
     } catch (error) {
-        console.error('백엔드 서버 데이터 로드 실패:', error);
+        console.error('Vercel 서버 데이터 로드 실패:', error);
         
         // 에러 메시지 표시
         document.getElementById('setup-tab').innerHTML = `
-            <h2>❌ 백엔드 서버 데이터 로드 실패</h2>
+            <h2>❌ Vercel 서버 데이터 로드 실패</h2>
             <div style="text-align: center; padding: 50px;">
-                <p>백엔드 서버에서 Steam 데이터를 가져올 수 없습니다.</p>
+                <p>Vercel 서버에서 Steam 데이터를 가져올 수 없습니다.</p>
                 <p>원인: ${error.message}</p>
                 <p><strong>가능한 원인:</strong></p>
                 <ul style="text-align: left; display: inline-block;">
-                    <li>백엔드 서버가 실행되지 않음 (npm start 실행 필요)</li>
                     <li>Steam 프로필이 비공개로 설정됨</li>
                     <li>Steam ID가 존재하지 않음</li>
                     <li>네트워크 연결 문제</li>
-                    <li>백엔드 서버 오류</li>
+                    <li>Vercel 서버 오류</li>
                 </ul>
                 <button class="btn" onclick="location.reload()">🔄 다시 시도</button>
                 <button class="btn btn-secondary" onclick="restoreSetupTab()">⚙️ 설정으로 돌아가기</button>
             </div>
         `;
     }
-}
-
-// Steam Community HTML에서 게임 데이터 파싱
-function parseSteamHTML(html, steamId) {
-    // Steam Community 페이지에서 게임 데이터 추출
-    const games = [];
-    
-    // 게임 목록 컨테이너 찾기
-    const gameListMatch = html.match(/var rgGames = (\[.*?\]);/s);
-    
-    if (gameListMatch) {
-        try {
-            // JSON 파싱 시도
-            const gameData = JSON.parse(gameListMatch[1]);
-            
-            gameData.forEach((game, index) => {
-                if (game.name && game.hours_forever) {
-                    games.push({
-                        name: game.name,
-                        playtime: Math.round(game.hours_forever * 10) / 10, // 소수점 1자리까지
-                        playtime2weeks: game.hours_2weeks || 0,
-                        appid: game.appid || (1000000 + index)
-                    });
-                }
-            });
-            
-            console.log(`Steam Community에서 ${games.length}개 게임 파싱 성공`);
-        } catch (parseError) {
-            console.error('JSON 파싱 실패:', parseError);
-        }
-    }
-    
-    // JSON 파싱 실패 시 HTML에서 직접 추출 시도
-    if (games.length === 0) {
-        console.log('JSON 파싱 실패, HTML에서 직접 추출 시도...');
-        
-        // 게임 이름과 플레이 시간 추출
-        const gameNameMatches = html.match(/<div class="gameListRowName">([^<]+)<\/div>/g);
-        const playTimeMatches = html.match(/<div class="gameListHours">([^<]+)<\/div>/g);
-        
-        if (gameNameMatches && playTimeMatches) {
-            for (let i = 0; i < gameNameMatches.length; i++) {
-                const gameName = gameNameMatches[i].replace(/<div class="gameListRowName">([^<]+)<\/div>/, '$1');
-                const playTime = playTimeMatches[i].replace(/<div class="gameListHours">([^<]+)<\/div>/, '$1');
-                
-                if (playTime !== '--') {
-                    games.push({
-                        name: gameName,
-                        playtime: parsePlayTime(playTime),
-                        playtime2weeks: Math.floor(Math.random() * 10),
-                        appid: 1000000 + i
-                    });
-                }
-            }
-        }
-    }
-    
-    // 파싱 실패 시 빈 배열 반환
-    if (games.length === 0) {
-        console.log('Steam Community 파싱 실패, 데이터 없음');
-        return [];
-    }
-    
-    return games.sort((a, b) => b.playtime - a.playtime);
-}
-
-// 플레이 시간 파싱 (예: "2.5 hours", "150 minutes" 등)
-function parsePlayTime(timeStr) {
-    const hoursMatch = timeStr.match(/(\d+(?:\.\d+)?)\s*hours?/i);
-    const minutesMatch = timeStr.match(/(\d+)\s*minutes?/i);
-    
-    if (hoursMatch) {
-        return parseFloat(hoursMatch[1]);
-    } else if (minutesMatch) {
-        return Math.round(parseInt(minutesMatch[1]) / 60 * 10) / 10;
-    }
-    
-    return Math.floor(Math.random() * 100) + 10; // 기본값
 }
 
 // Steam ID 형식 검증
@@ -325,7 +205,7 @@ function restoreSetupTab() {
     // setup-tab 내용을 원래대로 복원
     const setupTab = document.getElementById('setup-tab');
     setupTab.innerHTML = `
-        <h2>🎮 Steam 게임 분석기</h2>
+        <h2>�� Steam 게임 분석기</h2>
         <p>Steam ID를 입력하여 본인과 친구들의 게임 플레이 시간을 분석해보세요!</p>
         
         <div class="alert alert-warning">
@@ -359,6 +239,14 @@ function restoreSetupTab() {
 // 기본 통계 업데이트
 function updateBasicStats() {
     const myGames = currentData.myGames;
+    if (myGames.length === 0) {
+        document.getElementById('game-count').textContent = '0개';
+        document.getElementById('total-time').textContent = '0시간';
+        document.getElementById('avg-time').textContent = '0시간';
+        document.getElementById('top-game').textContent = '없음';
+        return;
+    }
+    
     const totalPlaytime = myGames.reduce((sum, game) => sum + game.playtime, 0);
     const avgPlaytime = totalPlaytime / myGames.length;
     
@@ -374,6 +262,11 @@ function updateBasicStats() {
 // 내 Top 게임 차트 생성
 function createTopGamesChart() {
     const myGames = currentData.myGames.slice(0, 10);
+    
+    if (myGames.length === 0) {
+        document.getElementById('top-games-chart').innerHTML = '<p>게임 데이터가 없습니다.</p>';
+        return;
+    }
     
     const data = [{
         x: myGames.map(g => g.playtime),
@@ -404,6 +297,11 @@ function createTopGamesChart() {
 function updateMyGamesTable() {
     const tbody = document.querySelector('#my-games-table tbody');
     tbody.innerHTML = '';
+    
+    if (currentData.myGames.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">게임 데이터가 없습니다.</td></tr>';
+        return;
+    }
     
     currentData.myGames.slice(0, 10).forEach((game, index) => {
         const row = tbody.insertRow();
@@ -494,6 +392,11 @@ function updateCommonGamesTable() {
     tbody.innerHTML = '';
     
     const commonGames = findCommonGames();
+    if (commonGames.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">공통 게임이 없습니다.</td></tr>';
+        return;
+    }
+    
     commonGames.forEach(game => {
         const row = tbody.insertRow();
         row.innerHTML = `
@@ -574,6 +477,11 @@ function updateMissingGamesTable() {
     tbody.innerHTML = '';
     
     const missingGames = findMissingGames();
+    if (missingGames.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">추천할 게임이 없습니다.</td></tr>';
+        return;
+    }
+    
     missingGames.forEach(game => {
         const row = tbody.insertRow();
         row.innerHTML = `
@@ -592,6 +500,11 @@ function updateMissingGamesTable() {
 function createComparisonChart() {
     const myGames = currentData.myGames.slice(0, 15);
     const friendsGames = currentData.friendsGames;
+    
+    if (myGames.length === 0) {
+        document.getElementById('comparison-chart').innerHTML = '<p>게임 데이터가 없습니다.</p>';
+        return;
+    }
     
     const data = [
         {
@@ -637,6 +550,11 @@ function createHeatmapChart() {
     const myGames = currentData.myGames.slice(0, 20);
     const friendsGames = currentData.friendsGames;
     
+    if (myGames.length === 0) {
+        document.getElementById('heatmap-chart').innerHTML = '<p>게임 데이터가 없습니다.</p>';
+        return;
+    }
+    
     const z = [myGames.map(g => g.playtime)];
     const y = myGames.map(g => g.name);
     const x = ['나'];
@@ -672,6 +590,11 @@ function createHeatmapChart() {
 function createDistributionChart() {
     const myGames = currentData.myGames;
     const friendsGames = currentData.friendsGames;
+    
+    if (myGames.length === 0) {
+        document.getElementById('distribution-chart').innerHTML = '<p>게임 데이터가 없습니다.</p>';
+        return;
+    }
     
     const data = [
         {
@@ -727,7 +650,7 @@ function createSlavesChart() {
     }];
     
     const layout = {
-        title: '🎮 게임별 "노예" 친구 TOP 15 🎮',
+        title: '�� 게임별 "노예" 친구 TOP 15 ��',
         xaxis: { title: '플레이 시간 (시간)' },
         yaxis: { title: '게임명' },
         height: 500,
@@ -779,6 +702,11 @@ function updateSlavesTable() {
     tbody.innerHTML = '';
     
     const gameSlaves = findGameSlaves();
+    if (gameSlaves.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">분석할 데이터가 없습니다.</td></tr>';
+        return;
+    }
+    
     gameSlaves.forEach(game => {
         const row = tbody.insertRow();
         row.innerHTML = `
@@ -793,60 +721,6 @@ function updateSlavesTable() {
     addBackToSetupButton('slaves-tab');
 }
 
-// 데이터 내보내기 함수
-function exportData() {
-    const data = {
-        myGames: currentData.myGames,
-        friendsGames: currentData.friendsGames,
-        exportDate: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'steam-game-analysis.json';
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-// 데이터 가져오기 함수
-function importData(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                currentData = data;
-                updateBasicStats();
-                showTab('my-games-tab');
-                alert('데이터를 성공적으로 가져왔습니다!');
-            } catch (error) {
-                alert('데이터 파일 형식이 올바르지 않습니다.');
-            }
-        };
-        reader.readAsText(file);
-    }
-}
-
-// SteamDB 데이터 로드 실패 시 처리
-function handleSteamDBError(error) {
-    console.error('SteamDB 데이터 로드 실패:', error);
-    
-    // 에러 메시지 표시
-    document.getElementById('setup-tab').innerHTML = `
-        <h2>❌ SteamDB 데이터 로드 실패</h2>
-        <div style="text-align: center; padding: 50px;">
-            <p>SteamDB에서 데이터를 가져올 수 없습니다.</p>
-            <p>원인: ${error.message}</p>
-            <button class="btn" onclick="location.reload()">🔄 다시 시도</button>
-        </div>
-    `;
-}
-
 // 전역 함수로 노출
 window.showTab = showTab;
 window.startAnalysis = startAnalysis;
-window.exportData = exportData;
-window.importData = importData;
