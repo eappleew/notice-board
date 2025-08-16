@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Steam 게임 분석기</title>
+    
+    <!-- Plotly.js 차트 라이브러리 -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <!-- Chart.js 차트 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>🎮 Steam 게임 분석기</h1>
+            <p>본인과 친구들의 게임 플레이 시간을 분석하고 비교해보세요!</p>
+        </div>
+        
+        <!-- 설정 섹션 -->
+        <div class="tab-content active" id="setup-tab">
+            <h2>⚙️ 설정</h2>
+                    <div class="alert alert-info">
+            <strong>💡 참고:</strong> 이 데모 버전은 샘플 데이터를 사용합니다. 
+            실제 Steam API 연동을 원한다면 백엔드 서버가 필요합니다.
+        </div>
+        
+                <div class="alert alert-warning">
+            <strong>⚠️ Steam ID 사용법:</strong><br>
+            • Steam 프로필 링크의 17자리 숫자<br>
+            • 예: https://steamcommunity.com/profiles/76561198000000000<br>
+            • <strong>프로필 링크에서 숫자만 복사해서 입력하세요!</strong>
+        </div>
+            
+        <div class="input-group">
+            <label for="steam-id">내 Steam ID</label>
+            <input type="text" id="steam-id" placeholder="76561198000000000">
+            <small style="color: #666; font-size: 0.9rem;">Steam 프로필 링크의 17자리 숫자</small>
+        </div>
+        
+        <div class="input-group">
+            <label for="friend-ids">친구 Steam ID 목록 (쉼표로 구분, 선택사항)</label>
+            <textarea id="friend-ids" rows="3" placeholder="76561198000000001, 76561198000000002, 76561198000000003"></textarea>
+            <small style="color: #666; font-size: 0.9rem;">친구들의 Steam ID (17자리 숫자)</small>
+        </div>
+            
+            <button class="btn" onclick="startAnalysis()">🚀 분석 시작</button>
+        </div>
+        
+        <!-- 기본 통계 -->
+        <div class="tab-content" id="stats-tab">
+            <h2>📊 기본 통계</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>내 게임 수</h3>
+                    <div class="value" id="game-count">0개</div>
+                </div>
+                <div class="stat-card">
+                    <h3>총 플레이 시간</h3>
+                    <div class="value" id="total-time">0시간</div>
+                </div>
+                <div class="stat-card">
+                    <h3>평균 플레이 시간</h3>
+                    <div class="value" id="avg-time">0시간</div>
+                </div>
+                <div class="stat-card">
+                    <h3>가장 많이 한 게임</h3>
+                    <div class="value" id="top-game">없음</div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- 탭 네비게이션 -->
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('my-games-tab')">🎯 내 게임 순위</div>
+            <div class="tab" onclick="showTab('common-games-tab')">⚔️ 공통 게임 비교</div>
+            <div class="tab" onclick="showTab('missing-games-tab')">🔍 누락된 게임</div>
+            <div class="tab" onclick="showTab('analysis-tab')">📈 상세 분석</div>
+            <div class="tab" onclick="showTab('slaves-tab')">🎮 게임 노예 분석</div>
+        </div>
+        
+        <!-- 내 게임 순위 탭 -->
+        <div class="tab-content active" id="my-games-tab">
+            <h2>🎯 내가 제일 열심히 한 게임</h2>
+            <div class="chart-container" id="top-games-chart"></div>
+            
+            <h3>📋 상세 데이터</h3>
+            <table class="data-table" id="my-games-table">
+                <thead>
+                    <tr>
+                        <th>순위</th>
+                        <th>게임명</th>
+                        <th>총 플레이 시간</th>
+                        <th>최근 2주 플레이 시간</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            
+        </div>
+        
+        <!-- 공통 게임 비교 탭 -->
+        <div class="tab-content" id="common-games-tab">
+            <h2>⚔️ 공통 게임 비교</h2>
+            <div class="chart-container" id="common-games-chart"></div>
+            
+            <h3>📋 공통 게임 목록</h3>
+            <table class="data-table" id="common-games-table">
+                <thead>
+                    <tr>
+                        <th>게임명</th>
+                        <th>내 플레이 시간</th>
+                        <th>친구 평균 플레이 시간</th>
+                        <th>갖고 있는 친구 수</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <!-- 누락된 게임 탭 -->
+        <div class="tab-content" id="missing-games-tab">
+            <h2>🔍 친구들이 많이 하는 게임 (본인 미소유)</h2>
+            <div class="chart-container" id="missing-games-chart"></div>
+            
+            <h3>📋 추천 게임 목록</h3>
+            <table class="data-table" id="missing-games-table">
+                <thead>
+                    <tr>
+                        <th>게임명</th>
+                        <th>친구들 총 플레이 시간</th>
+                        <th>친구 평균 플레이 시간</th>
+                        <th>갖고 있는 친구 수</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            
+        </div>
+        
+        <!-- 상세 분석 탭 -->
+        <div class="tab-content" id="analysis-tab">
+            <h2>📈 상세 분석</h2>
+            
+            <h3>본인 vs 친구들 플레이 시간 비교</h3>
+            <div class="chart-container" id="comparison-chart"></div>
+            
+            <h3>게임별 플레이 시간 히트맵</h3>
+            <div class="chart-container" id="heatmap-chart"></div>
+            
+            <h3>플레이 시간 분포 비교</h3>
+            <div class="chart-container" id="distribution-chart"></div>
+            
+        </div>
+        
+        <!-- 게임 노예 분석 탭 -->
+        <div class="tab-content" id="slaves-tab">
+            <h2>🎮 게임별 '노예' 친구 분석</h2>
+            <div class="chart-container" id="slaves-chart"></div>
+            
+            <h3>📋 게임별 최고 플레이어</h3>
+            <table class="data-table" id="slaves-table">
+                <thead>
+                    <tr>
+                        <th>게임명</th>
+                        <th>최고 플레이어 (친구 ID)</th>
+                        <th>플레이 시간</th>
+                        <th>플레이한 친구 수</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            
+            <div class="alert alert-warning">
+                <strong>💡 '노예' 친구:</strong> 해당 게임을 가장 오래 플레이한 친구를 의미합니다! 😄
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
