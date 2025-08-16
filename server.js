@@ -18,9 +18,9 @@ app.get('/api/steam-data/:steamId', async (req, res) => {
         console.log(`Steam ID ${steamId} 데이터 요청`);
         
         // Steam API 키 (실제 키로 교체 필요)
-        const STEAM_API_KEY = "YOUR_STEAM_API_KEY_HERE"; // 여기에 실제 API 키 입력
+        const STEAM_API_KEY = "62C597CD3CEC7C7AF3F2D60655C4A76B"; // 여기에 실제 API 키 입력
         
-        if (STEAM_API_KEY === "YOUR_STEAM_API_KEY_HERE") {
+        if (STEAM_API_KEY === "62C597CD3CEC7C7AF3F2D60655C4A76B") {
             // API 키가 없으면 샘플 데이터 반환
             const sampleGames = generateSampleGames(steamId);
             console.log(`${sampleGames.length}개 샘플 게임 생성 완료`);
